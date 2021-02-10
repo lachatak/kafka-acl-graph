@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    tier: backend
+  namespace: {{ .Values.namespace }}
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    rollingUpdate:
+      maxSurge: {{ .Values.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable }}
+  selector:
+    matchLabels:
+      app: {{ template "fullname" . }}
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+        tier: backend
+      annotations:
+        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+    spec:
+      serviceAccountName: {{ template "fullname" . }}-account
+      containers:
+        - name: graph
+          image: "docker.io/lachatak/kafka-acl-graph:latest"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ template "fullname" . }}-config
+            - secretRef:
+                name: {{ template "fullname" . }}-secret
+          ports:
+            - containerPort: {{ .Values.service.httpPort }}
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 2
+            failureThreshold: 3
+            httpGet:
+              path: {{ .Values.service.probe.livenessPath }}
+              port: {{ .Values.service.httpPort }}
+          livenessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 20
+            httpGet:
+              path: {{ .Values.service.probe.livenessPath }}
+              port: {{ .Values.service.httpPort }}
+          resources:
+{{ toYaml .Values.service.app.resources | indent 12 }}

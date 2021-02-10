@@ -1,0 +1,6 @@
+environment: "Uat"
+replicaCount: 1
+logLevel: INFO
+aiven:
+  project: ovo-uat
+  service: kafka-uat

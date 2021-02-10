@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "fullname" . }}-svc
+  labels:
+    app: {{ template "fullname" . }}
+    tier: backend
+  namespace: {{ .Values.namespace }}
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: {{ .Values.service.httpPort }}
+  selector:
+    app: {{ template "fullname" . }}
+    tier: backend
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ .Values.namespace }}
+spec:
+  hosts:
+    - kafka-acl-graph.{{ .Values.environment | lower }}.billy.boostpower.co.uk
+  gateways:
+    - istio-system/istio-internal-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            port:
+              number: 80
+            host: {{ template "fullname" . }}-svc.{{ .Values.namespace }}.svc.cluster.local
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: default
+  namespace: {{ .Values.namespace }}
+spec:
+  host: {{ template "fullname" . }}-svc.{{ .Values.namespace }}.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: DISABLE

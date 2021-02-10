@@ -1,0 +1,6 @@
+environment: "Prd"
+replicaCount: 1
+logLevel: INFO
+aiven:
+  project: ovo-prd
+  service: kafka-prd

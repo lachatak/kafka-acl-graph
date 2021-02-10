@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: {{ template "fullname" . }}-config
+data:
+  AIVEN_PROJECT: "{{ .Values.aiven.project }}"
+  AIVEN_SERVICE: "{{ .Values.aiven.service }}"
+  DOMAIN_NAME: "kafka-acl-graph.{{ .Values.environment | lower }}.billy.boostpower.co.uk"

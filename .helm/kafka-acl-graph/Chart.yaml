@@ -1,0 +1,4 @@
+apiVersion: v1
+description: Generate SVG output
+name: kafka-acl-graph
+version: 0.0.1
