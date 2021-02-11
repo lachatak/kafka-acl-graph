@@ -27,7 +27,16 @@ def generate(acls, self_link_generator, **kwargs):
     edges = set()
 
     for acl in acls:
-        nodes.add(Node(acl['topic'], {'shape': 'rectangle', 'URL': self_link_generator(acl['topic'])}))
+        # nodes.add(Node(acl['topic'], {'shape': 'rectangle', 'URL': self_link_generator(acl['topic']), 'labelURL': 'zoom', 'labelURL': f"{acl['topic']}", 'labeltooltip': 'label link'}))
+        nodes.add(Node(acl['topic'], {'shape': 'rectangle',
+                                      'label': f"""<
+<table BORDER='0' CELLBORDER='0' CELLSPACING='0'><tr><td href='{self_link_generator(acl['topic'])}' tooltip='Zoom In' style='cursor:pointer;color:blue;text-decoration:underline;'>{acl['topic']}</td></tr><tr><td href='{self_link_generator(acl['topic'])}-schema' tooltip='Get latest schema'>Schema</td></tr></table>
+>
+""",
+                                      # 'URL': self_link_generator(acl['topic']),
+                                      # 'labelURL': f"{acl['topic']}-labelURL",
+                                      # 'labeltooltip': 'label link'
+                                      }))
         nodes.add(Node(acl['username'], {'shape': 'ellipse', 'style': 'filled', 'fillcolor': 'green',
                                          'URL': self_link_generator(acl['username'])}))
         if acl['permission'] == 'read':
@@ -44,6 +53,7 @@ def generate(acls, self_link_generator, **kwargs):
     for edge in edges:
         dot.edge(edge.from_node, edge.to_node, **edge.style)
 
+    print(dot.source)
     rendered = dot.render(uuid.uuid4().hex, directory='/tmp', format='svg', **kwargs)
     logger.info(f'File rendered to {rendered}')
     with open(rendered, "rb") as file:

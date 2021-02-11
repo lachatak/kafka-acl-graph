@@ -1,8 +1,12 @@
+import logging
 from flask import Flask, request, Response
 from urllib.parse import unquote
 import os
 from aiven import Aiven
 import graph
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
@@ -19,6 +23,7 @@ def kafka_acl_graph():
     acls = aiven.get_relevant_acls(include_pattern, exclude_user_pattern, exclude_topic_pattern)
     rendered, content = graph.generate(acls, generate_self_link)
     os.remove(rendered)
+    logger.info(f'File {rendered} deleted')
 
     response = Response(response=content, status=200, mimetype="image/svg+xml")
     response.headers["Content-Type"] = "image/svg+xml; charset=utf-8"

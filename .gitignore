@@ -3,3 +3,4 @@ venv
 __pycache__/
 .helm/environments/nonprod_app_secrets.yaml
 .helm/environments/prod_app_secrets.yaml
+run-web.sh
