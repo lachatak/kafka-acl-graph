@@ -20,25 +20,20 @@ class Node:
     style: dict = field(hash=False)
 
 
-def generate(acls, self_link_generator, **kwargs):
+def generate(acls, self_link_generator, generate_topic_download_link, get_static_resource, **kwargs):
     dot = Digraph(comment='Kafka Topic Graph')
 
     nodes = set()
     edges = set()
 
     for acl in acls:
-        # nodes.add(Node(acl['topic'], {'shape': 'rectangle', 'URL': self_link_generator(acl['topic']), 'labelURL': 'zoom', 'labelURL': f"{acl['topic']}", 'labeltooltip': 'label link'}))
-        nodes.add(Node(acl['topic'], {'shape': 'rectangle',
-                                      'label': f"""<
-<table BORDER='0' CELLBORDER='0' CELLSPACING='0'><tr><td href='{self_link_generator(acl['topic'])}' tooltip='Zoom In' style='cursor:pointer;color:blue;text-decoration:underline;'>{acl['topic']}</td></tr><tr><td href='{self_link_generator(acl['topic'])}-schema' tooltip='Get latest schema'>Schema</td></tr></table>
->
-""",
-                                      # 'URL': self_link_generator(acl['topic']),
-                                      # 'labelURL': f"{acl['topic']}-labelURL",
-                                      # 'labeltooltip': 'label link'
-                                      }))
-        nodes.add(Node(acl['username'], {'shape': 'ellipse', 'style': 'filled', 'fillcolor': 'green',
-                                         'URL': self_link_generator(acl['username'])}))
+        nodes.add(Node(acl['topic'],
+                       {'shape': 'rectangle',
+                        'label': f"<{topic_label(acl['topic'], self_link_generator, generate_topic_download_link, get_static_resource)}>"}))
+        nodes.add(Node(acl['username'], {'shape': 'ellipse', 'style': 'filled', 'fillcolor': 'lawngreen',
+                                         'label': acl['username'],
+                                         'URL': self_link_generator(acl['username']),
+                                         'tooltip': 'Zoom'}))
         if acl['permission'] == 'read':
             edges.add(Edge(acl['topic'], acl['username'], {'color': 'blue'}))
         elif acl['permission'] == 'write':
@@ -58,3 +53,23 @@ def generate(acls, self_link_generator, **kwargs):
     logger.info(f'File rendered to {rendered}')
     with open(rendered, "rb") as file:
         return rendered, file.read()
+
+
+def topic_label(topic, self_link_generator, generate_topic_download_link, get_static_resource):
+    return f"""
+    <table border='0' cellborder='0' cellspacing='5'>
+        <tr>
+            <td href='{self_link_generator(topic)}' tooltip='Zoom'>{topic}</td>
+        </tr>
+        <tr>   
+            <td href='{generate_topic_download_link(topic)}' tooltip='Get latest schema'>
+                <table border='0' cellborder='0' cellspacing='0'>
+                    <tr>
+                        <td align='RIGHT'><img src='{get_static_resource('static/download.png')}'/></td>
+                        <td align='LEFT'>Download</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    """

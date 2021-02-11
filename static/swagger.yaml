@@ -1,0 +1,31 @@
+openapi: 3.0.0
+info:
+  description: Kafka ACL traversal
+  version: 0.1.0
+  contact:
+    email: krisztian.lachata@gmail.com
+tags:
+  - name: internal
+    description: Service related internal endpoints
+paths:
+  /internal/status:
+    get:
+      tags:
+        - internal
+      summary: Health check endpoint
+      description: >-
+        Returns 200 if the application is up. It does not do deep check. Always
+        gives back 200.
+      operationId: getStatus
+      responses:
+        '200':
+          description: Application is up
+  /internal/swagger.yaml:
+    get:
+      tags:
+        - internal
+      summary: Returns application swagger definition
+      operationId: getSwagger
+      responses:
+        '200':
+          description: Application swagger definition
