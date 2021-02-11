@@ -1,5 +1,5 @@
 import logging
-from flask import Flask, request, Response, send_from_directory, jsonify
+from flask import Flask, request, Response, jsonify
 from urllib.parse import unquote
 import os
 from aiven import Aiven

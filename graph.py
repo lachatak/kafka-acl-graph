@@ -23,14 +23,15 @@ class Node:
 def generate(acls, self_link_generator, generate_topic_download_link, get_static_resource, **kwargs):
     dot = Digraph(comment='Kafka Topic Graph')
 
-    nodes = set()
+    topic_nodes = set()
+    username_nodes = set()
     edges = set()
 
     for acl in acls:
-        nodes.add(Node(acl['topic'],
+        topic_nodes.add(Node(acl['topic'],
                        {'shape': 'rectangle',
                         'label': f"<{topic_label(acl['topic'], self_link_generator, generate_topic_download_link, get_static_resource)}>"}))
-        nodes.add(Node(acl['username'], {'shape': 'ellipse', 'style': 'filled', 'fillcolor': 'lawngreen',
+        username_nodes.add(Node(acl['username'], {'shape': 'ellipse', 'style': 'filled', 'fillcolor': 'lawngreen',
                                          'label': acl['username'],
                                          'URL': self_link_generator(acl['username']),
                                          'tooltip': 'Zoom'}))
@@ -42,7 +43,7 @@ def generate(acls, self_link_generator, generate_topic_download_link, get_static
             edges.add(Edge(acl['topic'], acl['username'], {'color': 'blue'}))
             edges.add(Edge(acl['username'], acl['topic'], {'color': 'red'}))
 
-    for node in nodes:
+    for node in username_nodes.union(topic_nodes):
         dot.node(node.name, **node.style)
 
     for edge in edges:
