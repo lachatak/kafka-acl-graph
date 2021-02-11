@@ -15,6 +15,7 @@ WORKDIR /app
 RUN pip3 install -r requirements.txt
 
 COPY *.py /app/
+COPY static/ /app/static/
 
 ENTRYPOINT [ "python3" ]
 
