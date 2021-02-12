@@ -94,7 +94,7 @@ def topic_label(topic, self_link_generator, generate_topic_download_link, get_st
     return f"""
     <table border='0' cellborder='0' cellspacing='5'>
         <tr>
-            <td href='{self_link_generator(topic)}' tooltip='Zoom'>{topic}</td>
+            <td href='{self_link_generator(topic)}' tooltip='Zoom' align='CENTER' COLSPAN='2'>{topic}</td>
         </tr>
         <tr>   
             <td href='{generate_topic_download_link(topic)}' tooltip='Get latest schema'>
