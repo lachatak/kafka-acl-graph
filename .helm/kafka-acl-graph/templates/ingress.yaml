@@ -22,7 +22,7 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   hosts:
-    - kafka-acl-graph.{{ .Values.environment | lower }}.billy.boostpower.co.uk
+    - {{ .Values.hostName }}
   gateways:
     - istio-system/istio-internal-gateway
   http:

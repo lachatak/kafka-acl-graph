@@ -6,4 +6,4 @@ metadata:
 data:
   AIVEN_PROJECT: "{{ .Values.aiven.project }}"
   AIVEN_SERVICE: "{{ .Values.aiven.service }}"
-  SERVER_NAME: "{{ .Values.serverName }}"
+  SERVER_NAME: "https://{{ .Values.hostName }}"

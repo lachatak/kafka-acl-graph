@@ -1,6 +1,5 @@
 venv
 .idea/
 __pycache__/
-.helm/environments/nonprod_app_secrets.yaml
-.helm/environments/prod_app_secrets.yaml
+.helm/app_secrets.yaml
 run-web.sh

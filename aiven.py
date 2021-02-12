@@ -25,17 +25,21 @@ class Aiven:
                              'Authorization': f'aivenv1 {self.aiven_api_token}'})
         return r.json()['acl']
 
+    @cachetools.func.ttl_cache(maxsize=100, ttl=10 * 60)
     def get_latest_schema(self, topic):
         logger.info(f'Getting schema details from aiven for {topic}')
         version_response = requests.get(f'{self.aiven_base_api_url}/kafka/schema/subjects/{topic}-value/versions',
                          headers={
                              'Authorization': f'aivenv1 {self.aiven_api_token}'})
 
-        schema_response = requests.get(f'{self.aiven_base_api_url}/kafka/schema/subjects/{topic}-value/versions/{max(version_response.json()["versions"])}/schema',
-                         headers={
-                             'Authorization': f'aivenv1 {self.aiven_api_token}'})
+        if version_response.status_code == 200:
+            schema_response = requests.get(f'{self.aiven_base_api_url}/kafka/schema/subjects/{topic}-value/versions/{max(version_response.json()["versions"])}/schema',
+                             headers={
+                                 'Authorization': f'aivenv1 {self.aiven_api_token}'})
 
-        return schema_response.json()
+            return schema_response.json()
+        else:
+            return {'error': 'No schema defined!'}
 
 
 def relevant(acl, include_pattern):

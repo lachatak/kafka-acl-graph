@@ -49,7 +49,7 @@ def generate(acls, self_link_generator, generate_topic_download_link, get_static
     for edge in edges:
         dot.edge(edge.from_node, edge.to_node, **edge.style)
 
-    print(dot.source)
+    logger.debug(dot.source)
     rendered = dot.render(uuid.uuid4().hex, directory='/tmp', format='svg', **kwargs)
     logger.info(f'File rendered to {rendered}')
     with open(rendered, "rb") as file:
@@ -66,8 +66,8 @@ def topic_label(topic, self_link_generator, generate_topic_download_link, get_st
             <td href='{generate_topic_download_link(topic)}' tooltip='Get latest schema'>
                 <table border='0' cellborder='0' cellspacing='0'>
                     <tr>
-                        <td align='RIGHT'><img src='{get_static_resource('static/download.png')}'/></td>
-                        <td align='LEFT'>Download</td>
+                        <td align='RIGHT'><img src='{get_static_resource('static/magnifiying-glass.png')}'/></td>
+                        <td align='LEFT'>Schema</td>
                     </tr>
                 </table>
             </td>

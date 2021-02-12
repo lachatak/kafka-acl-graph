@@ -19,4 +19,4 @@ COPY static/ /app/static/
 
 ENTRYPOINT [ "python3" ]
 
-CMD [ "kafka-acl-graph-web.py" ]
+CMD [ "kafka-acl-graph.py" ]

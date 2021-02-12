@@ -1,8 +1,7 @@
-# Default values for kafka-acl-graph.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+logLevel: INFO
 serviceName: &serviceName kafka-acl-graph
 namespace: *serviceName
+replicaCount: 1
 rollingUpdate:
   maxSurge: 1
   maxUnavailable: 1
