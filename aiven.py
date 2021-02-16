@@ -1,7 +1,9 @@
 import logging
-import requests
 import re
+
 import cachetools.func
+import requests
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

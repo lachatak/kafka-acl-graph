@@ -1,13 +1,14 @@
 import logging
-from dataclasses import dataclass, field
-from collections import Counter
 import re
-from collections import namedtuple
+import uuid
+from collections import Counter, namedtuple
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import List
+
+from fn import _
 from functional import seq
 from graphviz import Digraph
-import uuid
 
 
 logging.basicConfig(level=logging.INFO)
@@ -53,8 +54,7 @@ def generate(acls, search_conditions):
     relevant_acls = seq(acls) \
         .map(lambda x: add_search_result(x, search_conditions.include_pattern)) \
         .filter(lambda x: x['include_type'] in (IncludeType.ALL, IncludeType.TOPIC, IncludeType.USERNAME)) \
-        .filter(lambda x: not excluded(x, search_conditions.exclude_user_pattern,
-                                         search_conditions.exclude_topic_pattern))
+        .filter(lambda x: not excluded(x, search_conditions.exclude_user_pattern, search_conditions.exclude_topic_pattern))
 
     username_nodes = set()
     topic_nodes = set()
@@ -72,7 +72,7 @@ def generate(acls, search_conditions):
             edges.add(Edge(acl['topic'], acl['username'], EdgeMode.READ))
             edges.add(Edge(acl['username'], acl['topic'], EdgeMode.WRITE))
 
-    return username_nodes.union(mark_problematic_topics(topic_nodes)), edges
+    return mark_problematic_users(username_nodes) + mark_problematic_topics(topic_nodes), edges
 
 
 def add_search_result(acl, include_pattern):
@@ -108,11 +108,18 @@ def excluded(acl, exclude_user_pattern, exclude_topic_pattern):
 
 
 def mark_problematic_users(users):
-    return users
+    def mark_invalid(user):
+        if '*' in user.name:
+            user.problems.append('Invalid service name!')
+            return user
+        else:
+            return user
+
+    return [mark_invalid(user) for user in users]
 
 
 def mark_problematic_topics(topics):
-    duplicated_topics = get_duplicated_topics(map(lambda x: x.name, topics))
+    duplicated_topics = get_duplicated_topics(map(_.name, topics))
 
     def mark_duplicated(topic):
         if topic_without_version(topic.name) in duplicated_topics:
@@ -158,15 +165,16 @@ def render(nodes, edges, link_generator):
         return rendered, file.read()
 
 
-def add_username_node(dot, node, link_generator):
+def add_username_node(dot, user, link_generator):
     style = {'shape': 'ellipse',
-             'label': node.name,
-             'URL': link_generator.self_link_generator(node.name),
+             'label': user.name,
+             'URL': link_generator.self_link_generator(user.name),
              'tooltip': 'Zoom'}
 
-    style.update({'style': 'filled', 'fillcolor': 'lawngreen'}) if node.included_in_search else style
+    style.update({'style': 'filled', 'fillcolor': 'lawngreen'}) if user.included_in_search else style
+    style.update({'style': 'filled', 'fillcolor': 'yellow'}) if len(user.problems) > 0 else style
 
-    dot.node(node.name, **style)
+    dot.node(user.name, **style)
 
 
 def add_topic_node(dot, topic, link_generator):

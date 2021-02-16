@@ -1,9 +1,11 @@
 import logging
-from flask import Flask, request, Response, jsonify
-from urllib.parse import unquote
 import os
-from aiven import Aiven
+from urllib.parse import unquote
+
 import graph
+from aiven import Aiven
+from flask import Flask, Response, jsonify, request
+
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
