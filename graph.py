@@ -171,7 +171,7 @@ def add_username_node(dot, node, link_generator):
 
 def add_topic_node(dot, topic, link_generator):
     style = {'shape': 'rectangle',
-             'label': f"<{topic_label(topic.name, link_generator.self_link_generator, link_generator.generate_topic_download_link, link_generator.get_static_resource)}>"}
+             'label': f"<{topic_label(topic, link_generator)}>"}
 
     style.update({'style': 'filled', 'fillcolor': 'lawngreen'}) if topic.included_in_search else style
     style.update({'style': 'filled', 'fillcolor': 'yellow'}) if len(topic.problems) > 0 else style
@@ -179,17 +179,17 @@ def add_topic_node(dot, topic, link_generator):
     dot.node(topic.name, **style)
 
 
-def topic_label(topic_name, self_link_generator, generate_topic_download_link, get_static_resource):
+def topic_label(topic, link_generator):
     return f"""
     <table border='0' cellborder='0' cellspacing='5'>
         <tr>
-            <td href='{self_link_generator(topic_name)}' tooltip='Zoom' align='CENTER' COLSPAN='2'>{topic_name}</td>
+            <td href='{link_generator.self_link_generator(topic.name)}' tooltip='Zoom' align='CENTER' COLSPAN='2'>{topic.name}</td>
         </tr>
         <tr>   
-            <td href='{generate_topic_download_link(topic_name)}' tooltip='Get latest schema'>
+            <td href='{link_generator.generate_topic_download_link(topic.name)}' tooltip='Get latest schema'>
                 <table border='0' cellborder='0' cellspacing='0'>
                     <tr>
-                        <td align='RIGHT'><img src='{get_static_resource('static/magnifiying-glass.png')}'/></td>
+                        <td align='RIGHT'><img src='{link_generator.get_static_resource('static/magnifiying-glass.png')}'/></td>
                         <td align='LEFT'>Schema</td>
                     </tr>
                 </table>
