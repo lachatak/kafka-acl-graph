@@ -21,8 +21,9 @@ def kafka_acl_graph():
     exclude_user_pattern = unquote(request.args.get('exclude-user-pattern', ''))
     exclude_topic_pattern = unquote(request.args.get('exclude-topic-pattern', ''))
 
-    acls = aiven.get_relevant_acls(include_pattern, exclude_user_pattern, exclude_topic_pattern)
-    rendered, content = graph.generate(acls, generate_self_link, generate_topic_download_link, get_static_resource)
+    acls = aiven.get_aiven_acls()
+    nodes, edges = graph.generate(acls, graph.SearchConditions(include_pattern, exclude_user_pattern, exclude_topic_pattern))
+    rendered, content = graph.render(nodes, edges, graph.LinkGenerator(generate_self_link, generate_topic_download_link, get_static_resource))
     os.remove(rendered)
     logger.info(f'File {rendered} deleted')
 
