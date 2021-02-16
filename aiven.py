@@ -1,7 +1,9 @@
 import logging
-import requests
 import re
+
 import cachetools.func
+import requests
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -11,11 +13,6 @@ class Aiven:
     def __init__(self, aiven_project, aiven_service, aiven_api_token):
         self.aiven_base_api_url = f'https://api.aiven.io/v1/project/{aiven_project}/service/{aiven_service}'
         self.aiven_api_token = aiven_api_token
-
-    def get_relevant_acls(self, include_pattern, exclude_user_pattern, exclude_topic_pattern):
-        return [acl for acl in self.get_aiven_acls()
-                if relevant(acl, include_pattern)
-                and not irrelevant(acl, exclude_user_pattern, exclude_topic_pattern)]
 
     @cachetools.func.ttl_cache(maxsize=1, ttl=10 * 60)
     def get_aiven_acls(self):
