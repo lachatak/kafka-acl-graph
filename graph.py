@@ -236,7 +236,7 @@ def warning(node, link_generator):
 
 def contact(node, link_generator):
     return f"""
-            <td href='#' tooltip='Contact details' align='CENTER'>
+            <td href='#' tooltip='Contact with owner' align='CENTER'>
                 <table border='0' cellborder='0' cellspacing='0'>
                     <tr>
                         <td align='RIGHT'><img src='{link_generator.get_static_resource('static/email.png')}'/></td>
