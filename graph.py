@@ -110,7 +110,7 @@ def excluded(acl, exclude_user_pattern, exclude_topic_pattern):
 def mark_problematic_users(users):
     def mark_invalid(user):
         if '*' in user.name:
-            user.problems.append('Invalid service name!')
+            user.problems.append('Invalid ACL service name! Add explicit service name without wildcards!')
             return user
         else:
             return user
@@ -123,7 +123,7 @@ def mark_problematic_topics(topics):
 
     def mark_duplicated(topic):
         if topic_without_version(topic.name) in duplicated_topics:
-            topic.problems.append('Topic with multiple version numbers!')
+            topic.problems.append('Topic with multiple version numbers! Remove old topic definition when it is not used!')
             return topic
         else:
             return topic
@@ -167,9 +167,7 @@ def render(nodes, edges, link_generator):
 
 def add_username_node(dot, user, link_generator):
     style = {'shape': 'ellipse',
-             'label': user.name,
-             'URL': link_generator.self_link_generator(user.name),
-             'tooltip': 'Zoom'}
+             'label': f"<{user_label(user, link_generator)}>"}
 
     style.update({'style': 'filled', 'fillcolor': 'lawngreen'}) if user.included_in_search else style
     style.update({'style': 'filled', 'fillcolor': 'yellow'}) if len(user.problems) > 0 else style
@@ -187,21 +185,63 @@ def add_topic_node(dot, topic, link_generator):
     dot.node(topic.name, **style)
 
 
+def user_label(user, link_generator):
+    return f"""
+    <table border='0' cellborder='0' cellspacing='5'>
+        <tr>
+            <td href='{link_generator.self_link_generator(user.name)}' tooltip='Zoom' align='CENTER' COLSPAN='2'>{user.name}</td>
+        </tr>
+        <tr> 
+            {contact(user, link_generator)}
+            {warning(user, link_generator)}
+        </tr>
+    </table>
+    """
+
+
 def topic_label(topic, link_generator):
     return f"""
     <table border='0' cellborder='0' cellspacing='5'>
         <tr>
-            <td href='{link_generator.self_link_generator(topic.name)}' tooltip='Zoom' align='CENTER' COLSPAN='2'>{topic.name}</td>
+            <td href='{link_generator.self_link_generator(topic.name)}' tooltip='Zoom' align='CENTER' COLSPAN='3'>{topic.name}</td>
         </tr>
         <tr>   
-            <td href='{link_generator.generate_topic_download_link(topic.name)}' tooltip='Get latest schema'>
+            <td href='{link_generator.generate_topic_download_link(topic.name)}' tooltip='Get latest schema' align='CENTER'>
                 <table border='0' cellborder='0' cellspacing='0'>
                     <tr>
-                        <td align='RIGHT'><img src='{link_generator.get_static_resource('static/magnifiying-glass.png')}'/></td>
+                        <td align='RIGHT'><img src='{link_generator.get_static_resource('static/menu.png')}'/></td>
                         <td align='LEFT'>Schema</td>
                     </tr>
                 </table>
             </td>
+            {contact(topic, link_generator)}
+            {warning(topic, link_generator)}
         </tr>
     </table>
     """
+
+
+def warning(node, link_generator):
+    return f"""
+            <td href='#' tooltip='{' '.join(map(str, node.problems))}' align='CENTER'>
+               <table border='0' cellborder='0' cellspacing='0'>
+                    <tr>
+                        <td align='RIGHT'><img src='{link_generator.get_static_resource('static/warning.png')}'/></td>
+                        <td align='LEFT'>Warning</td>
+                    </tr>
+                </table>
+            </td>
+            """ if len(node.problems) > 0 else "<td></td>"
+
+
+def contact(node, link_generator):
+    return f"""
+            <td href='#' tooltip='Contact details' align='CENTER'>
+                <table border='0' cellborder='0' cellspacing='0'>
+                    <tr>
+                        <td align='RIGHT'><img src='{link_generator.get_static_resource('static/email.png')}'/></td>
+                        <td align='LEFT'>Contact</td>
+                    </tr>
+                </table>
+            </td>
+            """
